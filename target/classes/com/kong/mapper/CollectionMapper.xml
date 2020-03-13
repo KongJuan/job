@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper
+                PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kong.mapper.CollectionMapper">
+<resultMap id="positionMap" type="jobSeeker">
+    <id column="userId" property="userId"/>
+    <result column="userName" property="userName"/>
+    <result column="userPwd" property="userPwd"/>
+    <result column="mobile" property="mobile"/>
+    <collection property="positions" ofType="position">
+        <id column="p_id" property="p_id"/>
+        <result column="p_name" property="p_name"/>
+        <result column="xueli" property="xueli"/>
+        <result column="salary" property="salary"/>
+        <result column="workCity" property="workCity"/>
+        <result column="functionType" property="functionType"/>
+        <result column="num" property="num"/>
+        <result column="brief" property="brief"/>
+        <result column="employeeType" property="employeeType"/>
+        <result column="publicTime" property="publicTime"/>
+        <result column="publicId" property="publicId"/>
+        <result column="clickNum" property="clickNum"/>
+    </collection>
+</resultMap>
+        <!--查询用户收藏的职位-->
+<select id="queryCollectPosition" resultMap="positionMap" parameterType="int">
+       select userId,p_id,p_name,workCity,publicTime,publicId from post p
+        INNER join collect c on p.p_id=c.pid
+        INNER join jobseeker j on j.userId=c.uid
+        where j.userId=#{userId}
+    </select>
+
+        <!--添加收藏的职位-->
+<insert id="addCollectPosition" parameterType="map">
+        insert into collect(uid,pid) values(#{userId},#{p_id})
+    </insert>
+
+        <!--删除收藏的职位-->
+<delete id="delCollectPosition" parameterType="map">
+        delete from collect where pid=#{pid} and uid=#{uid}
+    </delete>
+</mapper>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kong.mapper.ResumeMapper">
+
+    <!--显示列表-->
+    <select id="queryUserInfo" resultMap="resumeMap" parameterType="map">
+        select id,name,gender,birthDate,workDate,birthProvince,birthCity,liveProvince,liveCity,liveCounty,phone,mail,identity
+               from resume where userId=#{userId}
+    </select>
+
+    <select id="queryJobIntention" resultMap="resumeMap" parameterType="map">
+        select id,workCharacter,expectPlace,expectJob,expectPost,expectSalary
+              from resume where userId=#{userId}
+    </select>
+
+    <select id="queryResume" parameterType="map" resultMap="resumeMap">
+        select r.*,p.*,e.* from resume r
+        left join project p on p.resumeId=r.id
+        left join education e on e.resumeId=r.id
+        where userId=#{userId}
+    </select>
+
+    <!--添加-->
+    <insert id="insertUserInfo" parameterType="map">
+        insert into resume(name,gender,birthDate,workDate,birthProvince,birthCity,liveProvince,liveCity,liveCounty,phone,mail,identity,userId)
+                 values (#{name},#{gender},#{birthDate},#{workDate},#{birthProvince},#{birthCity},#{liveProvince},#{liveCity},#{liveCounty},#{phone},#{mail},#{identity},#{userId})
+
+    </insert>
+
+    <insert id="insertJobIntention" parameterType="map">
+        insert into resume(workCharacter,expectPlace,expectJob,expectPost,expectSalary,userId)
+                 values (#{workCharacter},#{expectPlace},#{expectJob},#{expectPost},#{expectSalary},#{userId})
+
+    </insert>
+
+    <!--根据id查询-->
+    <select id="queryUserInfoById" resultMap="resumeMap" parameterType="map">
+        select id,name,gender,birthDate,workDate,birthProvince,birthCity,liveProvince,liveCity,liveCounty,phone,mail,identity
+               from resume where userId=#{userId}
+    </select>
+
+    <select id="queryJobIntentionById" resultMap="resumeMap" parameterType="map">
+        select workCharacter,expectPlace,expectJob,expectPost,expectSalary
+              from resume where userId=#{userId}
+    </select>
+
+    <!--修改-->
+    <update id="updateUser" parameterType="com.kong.model.Resume">
+        update resume
+        <set>
+            <if test="name!=null and name!=''">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="gender!=null and gender!=''">
+                gender = #{gender,jdbcType=VARCHAR},
+            </if>
+            <if test="birthDate != null">
+                birthDate = #{birthDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="workDate != null">
+                workDate = #{workDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="birthProvince!=null and birthProvince!=''">
+                birthProvince = #{birthProvince,jdbcType=VARCHAR},
+            </if>
+            <if test="birthCity!=null and birthCity!=''">
+                birthCity = #{birthCity,jdbcType=VARCHAR},
+            </if>
+            <if test="liveProvince!=null and liveProvince!=''">
+                liveProvince = #{liveProvince,jdbcType=VARCHAR},
+            </if>
+            <if test="liveCity!=null and liveCity!=''">
+                liveCity = #{liveCity,jdbcType=VARCHAR},
+            </if>
+            <if test="liveCounty!=null and liveCounty!=''">
+                liveCounty = #{liveCounty,jdbcType=VARCHAR},
+            </if>
+            <if test="phone!=null and phone!=''">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="mail!=null and mail!=''">
+                mail = #{mail,jdbcType=VARCHAR},
+            </if>
+            <if test="identity!=null and identity!=''">
+                identity = #{identity,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateJobIntention" parameterType="resume">
+        update resume
+        <set>
+            <if test ="workCharacter!=null and workCharacter!=''">
+                workCharacter = #{workCharacter,jdbcType=VARCHAR},
+            </if>
+            <if test="expectPlace!=null and expectPlace!=''">
+                expectPlace = #{expectPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="expectJob!=null and expectJob!=''">
+                expectJob = #{expectJob,jdbcType=VARCHAR},
+            </if>
+            <if test="expectPost!=null and expectPost!=''">
+                expectPost = #{expectPost,jdbcType=VARCHAR},
+            </if>
+            <if test="expectSalary!=null and expectSalary!=''">
+                expectSalary = #{expectSalary,jdbcType=VARCHAR}
+            </if>
+        </set>
+
+         where id = #{id}
+    </update>
+
+    <!--通过id查询项目经验-->
+    <select id="queryProjectById" parameterType="map" resultType="project">
+        select * from project where proId=#{proId}
+    </select>
+    <!--通过id查询教育经历-->
+    <select id="queryEducationById" parameterType="map" resultType="education">
+        select * from education where eduId=#{eduId}
+    </select>
+
+    <!--修改项目经验-->
+    <update id="updateProject" parameterType="project">
+        update project set
+            projectName=#{projectName},
+            startTime=#{startTime},
+            endTime=#{endTime},
+            projectDesc=#{projectDesc},
+            personalWork=#{personalWork},
+            companyName=#{companyName}
+        where proId=#{proId}
+    </update>
+    <!--修改教育经历-->
+    <update id="updateEducation" parameterType="education">
+        update education set
+            schoolName=#{schoolName},
+            startDate=#{startDate},
+            endDate=#{endDate},
+            major=#{major},
+            isUnified=#{isUnified},
+            degree=#{degree}
+        where eduId=#{eduId}
+    </update>
+
+    <!--添加项目经验-->
+    <insert id="addProject" parameterType="project">
+        insert into project(projectName,startTime,endTime,projectDesc,personalWork,companyName,resumeId)
+          values(#{projectName},#{startTime},#{endTime},#{projectDesc},#{personalWork},#{companyName},#{resumeId})
+    </insert>
+
+    <!--添加教育背景-->
+    <insert id="addEducation" parameterType="education">
+        insert into education(schoolName,startDate,endDate,major,isUnified,degree,resumeId)
+          values(#{schoolName},#{startDate},#{endDate},#{major},#{isUnified},#{degree},#{resumeId})
+    </insert>
+    <!--投递简历-->
+    <insert id="deliverResume" parameterType="map">
+        insert into deliver(pid,rid,state,deliverTime) values(#{pid},#{rid},0,now())
+    </insert>
+
+    <!--查看已投简历职位-->
+    <select id="deliverSuccess" parameterType="int" resultType="deliver">
+        select pid,deliverTime,state from deliver where rid=#{rid}
+    </select>
+
+    <!--被查看 state=1-->
+    <select id="looked" parameterType="int" resultType="deliver">
+        select pid,lookTime,state from deliver where rid=#{rid} and state=1
+    </select>
+
+    <!--有意向-->
+    <select id="want" parameterType="int" resultType="deliver">
+        select pid,wantTime,state from deliver where rid=#{rid} and state=2
+    </select>
+
+    <!--邀请面试 state=3-->
+    <select id="interview" parameterType="int" resultType="deliver">
+        select pid,inviteTime,state from deliver where rid=#{rid} and state=3
+    </select>
+
+    <!--不适合 state=4-->
+    <select id="deliverFail" parameterType="int" resultType="deliver">
+        select pid,unsuitedTime,state from deliver where rid=#{rid} and state=4
+    </select>
+
+
+    <resultMap id="resumeMap" type="resume">
+        <id column="id" property="id"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="birthDate" property="birthDate" jdbcType="TIMESTAMP"/>
+        <result column="workDate" property="workDate" jdbcType="TIMESTAMP"/>
+        <result column="birthProvince" property="birthProvince" jdbcType="VARCHAR"/>
+        <result column="birthCity" property="birthCity" jdbcType="VARCHAR"/>
+        <result column="liveProvince" property="liveProvince" jdbcType="VARCHAR"/>
+        <result column="liveCity" property="liveCity" jdbcType="VARCHAR"/>
+        <result column="liveCounty" property="liveCounty" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="mail" property="mail" jdbcType="VARCHAR"/>
+        <result column="identity" property="identity" jdbcType="VARCHAR"/>
+        <result column="workCharacter" property="workCharacter" jdbcType="VARCHAR"/>
+        <result column="expectPlace" property="expectPlace" jdbcType="VARCHAR"/>
+        <result column="expectJob" property="expectJob" jdbcType="VARCHAR"/>
+        <result column="expectPost" property="expectPost" jdbcType="VARCHAR"/>
+        <result column="expectSalary" property="expectSalary" jdbcType="VARCHAR"/>
+        <result column="modifyTime" property="modifyTime" jdbcType="TIMESTAMP"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="userId" property="userId"/>
+        <collection property="projects" ofType="project">
+            <id column="proId" property="proId"/>
+            <result column="projectName" property="projectName"/>
+            <result column="startTime" property="startTime"/>
+            <result column="endTime" property="endTime"/>
+            <result column="projectDesc" property="projectDesc"/>
+            <result column="personalWork" property="personalWork"/>
+            <result column="companyName" property="companyName"/>
+            <result column="resumeId" property="resumeId"/>
+        </collection>
+        <collection property="educations" ofType="education">
+            <id column="eduId" property="eduId"/>
+            <result column="schoolName" property="schoolName"/>
+            <result column="startDate" property="startDate"/>
+            <result column="endDate" property="endDate"/>
+            <result column="major" property="major"/>
+            <result column="isUnified" property="isUnified"/>
+            <result column="degree" property="degree"/>
+            <result column="resumeId" property="resumeId"/>
+        </collection>
+    </resultMap>
+
+
+</mapper>

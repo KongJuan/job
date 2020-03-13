@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kong.mapper.JobSeekerMapper">
+    <!--因为在sqlMapConfig.xml中配置了别名，所以直接写user就可以-->
+
+
+
+
+    <!--查询用户列表-->
+    <select id="queryJobSeekerList" parameterType="map" resultType="jobSeeker">
+        select * from jobseeker
+        <where>
+            <if test="userName!=null and userName!=''">
+                userName like CONCAT('%',#{userName},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                AND mobile=#{mobile}
+            </if>
+        </where>
+    </select>
+
+    <!--根据条件查询用户是否存在,登录-->
+    <select id="queryJobSeeker" parameterType="map" resultType="jobSeeker">
+        select * from jobseeker where userName=#{userName} and userPwd=#{userPwd}
+    </select>
+
+    <!--根据条件查询用户是否存在,注册-->
+    <select id="queryJobSeekerByName" parameterType="map" resultType="jobSeeker">
+        select * from jobseeker where userName=#{userNamne}
+    </select>
+
+    <!--新增用户  注册-->
+    <insert id="addJobSeeker" parameterType="map">
+        insert into jobseeker(
+        userName,userPwd,mobile) values (
+        #{userName},
+        #{userPwd},
+        #{mobile})
+    </insert>
+
+    <!--根据用户名称更新用户信息-->
+    <update id="updateJobSeeker" parameterType="map">
+        update jobseeker
+        set
+        userName = #{userName},
+        userPwd = #{userPwd},
+        mobile=#{mobile}
+        where userName = #{userName}
+    </update>
+
+    <!--根据用户id更新用户信息-->
+    <update id="updateJobSeekerById" parameterType="map">
+        update jobseeker
+        set
+        userName = #{userName},
+        userPwd = #{userPwd},
+        mobile=#{mobile}
+        where userId = #{userId}
+    </update>
+
+    <!--修改用户密码-->
+
+    <update id="updateJobSeekerPass" parameterType="map">
+        update jobseeker set userPwd = #{userPwd} where userName = #{userName}
+    </update>
+
+    <!--根据用户名删除用户信息-->
+
+    <delete id="delJobSeeker" parameterType="map">
+        delete from jobseeker where  userId = #{userId}
+    </delete>
+</mapper>

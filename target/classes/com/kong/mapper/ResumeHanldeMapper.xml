@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kong.mapper.ResumeHandleMapper">
+
+
+    <!--查询投递人员-->
+    <select id="searchDeliver" parameterType="java.util.HashMap" resultMap="PositionResume">
+       select p_id,r.id,r.name,r.gender,r.birthDate,p_name from post p
+        left join deliver d on p.p_id=d.pid
+        left join resume r on r.id=d.rid
+       <where>
+           d.state=#{state}
+           <if test="rname!=null and rname!=''">
+               and r.name like CONCAT('%',#{rname},'%')
+           </if>
+           <if test="pname!=null and pname!=''">
+              and p_name like CONCAT('%',#{pname},'%')
+           </if>
+           <if test="list!=null and list.size()>0">
+               <foreach collection="list" index="index" item="pid" open="AND pid in (" separator="," close=")">
+                   #{pid}
+               </foreach>
+           </if>
+       </where>
+    </select>
+
+    <!--查询投递时间-->
+    <select id="selectDeliverDate" resultType="java.lang.String">
+        select deliverTime from deliver where pid=#{pid} and rid=#{rid}
+    </select>
+
+    <!--简历被查看-->
+    <update id="lookResume" parameterType="map">
+        update deliver set state=1,lookTime=now() where pid=#{pid} and rid=#{rid}
+    </update>
+
+    <!--添加审核-->
+    <update id="verifyResume" parameterType="map">
+        update deliver set state=2,wantTime=now() where pid=#{pid} and rid=#{rid}
+    </update>
+
+    <!--通知面试-->
+    <update id="requestInterview" parameterType="map">
+        update deliver set state=3,inviteTime=now() where rid=#{rid}
+    </update>
+
+    <!--不合适-->
+    <update id="resumeUnsuit" parameterType="map">
+        update deliver set state=4,unsuitedTime=now() where rid=#{rid}
+    </update>
+
+    <!--查看面试-->
+    <select id="queryInterview" parameterType="map" resultMap="PositionResume">
+        select p_id,r.id,r.name,r.gender,r.birthDate,p_name from post p
+        left join deliver d on p.p_id=d.pid
+        left join resume r on r.id=d.rid
+        <where>
+            d.state in (4,5,6)
+            <if test="rname!=null and rname!=''">
+                and r.name like CONCAT('%',#{rname},'%')
+            </if>
+            <if test="pname!=null and pname!=''">
+                and p_name like CONCAT('%',#{pname},'%')
+            </if>
+            <if test="state!=null and state!=''">
+                and d.state=#{state}
+            </if>
+            <if test="list!=null and list.size()>0">
+                <foreach collection="list" index="index" item="pid" open="AND pid in (" separator="," close=")">
+                    #{pid}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <!--查询面试状态-->
+    <select id="queryInterviewState" resultType="map">
+        select state,inviteTime from deliver where pid=#{pid} and rid=#{rid}
+    </select>
+
+    <resultMap id="PositionResume" type="com.kong.model.Position">
+        <id column="p_id" property="p_id"/>
+        <result column="p_name" property="p_name" jdbcType="VARCHAR"/>
+        <result column="xueli" property="xueli" jdbcType="VARCHAR"/>
+        <result column="salary" property="salary" jdbcType="VARCHAR"/>
+        <result column="workProvince" property="workProvince" jdbcType="VARCHAR"/>
+        <result column="workCity" property="workCity" jdbcType="VARCHAR"/>
+        <result column="detailAdr" property="detailAdr" jdbcType="VARCHAR"/>
+        <result column="functionType" property="functionType" jdbcType="VARCHAR"/>
+        <result column="num" property="num" jdbcType="INTEGER"/>
+        <result column="brief" property="brief" jdbcType="VARCHAR"/>
+        <result column="employeeType" property="employeeType" jdbcType="VARCHAR"/>
+        <result column="publicTime" property="publicTime" jdbcType="VARCHAR"/>
+        <result column="publicId" property="publicId" jdbcType="INTEGER"/>
+        <result column="state" property="state"/>
+        <collection property="resumes" ofType="resume">
+            <id property="id" column="id"/>
+            <result column="name" property="name" jdbcType="VARCHAR"/>
+            <result column="gender" property="gender" jdbcType="VARCHAR"/>
+            <result column="birthDate" property="birthDate" jdbcType="TIMESTAMP"/>
+            <result column="workDate" property="workDate" jdbcType="TIMESTAMP"/>
+            <result column="birthProvince" property="birthProvince" jdbcType="VARCHAR"/>
+            <result column="birthCity" property="birthCity" jdbcType="VARCHAR"/>
+            <result column="liveProvince" property="liveProvince" jdbcType="VARCHAR"/>
+            <result column="liveCity" property="liveCity" jdbcType="VARCHAR"/>
+            <result column="liveCounty" property="liveCounty" jdbcType="VARCHAR"/>
+            <result column="phone" property="phone" jdbcType="VARCHAR"/>
+            <result column="mail" property="mail" jdbcType="VARCHAR"/>
+            <result column="identity" property="identity" jdbcType="VARCHAR"/>
+            <result column="workCharacter" property="workCharacter" jdbcType="VARCHAR"/>
+            <result column="expectPlace" property="expectPlace" jdbcType="VARCHAR"/>
+            <result column="expectJob" property="expectJob" jdbcType="VARCHAR"/>
+            <result column="expectPost" property="expectPost" jdbcType="VARCHAR"/>
+            <result column="expectSalary" property="expectSalary" jdbcType="VARCHAR"/>
+            <result column="modifyTime" property="modifyTime" jdbcType="TIMESTAMP"/>
+            <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+            <result column="userId" property="userId"/>
+        </collection>
+    </resultMap>
+</mapper>

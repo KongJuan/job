@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kong.mapper.ChinaMapper">
+
+    <resultMap id="chinaMapper" type="china">
+        <id column="Id" property="id"/>
+        <result column="Name" property="name"/>
+        <result column="Pid" property="pid"/>
+    </resultMap>
+
+    <select id="queryProvince" resultMap="chinaMapper" parameterType="map">
+        SELECT * FROM china WHERE china.Pid=0 limit 1,33
+    </select>
+
+    <select id="queryCity" resultMap="chinaMapper" parameterType="map">
+          SELECT * FROM china WHERE china.Pid=#{pid}
+    </select>
+
+   <select id="placeName" parameterType="int" resultType="java.lang.String">
+       select Name from china where Id=#{Id}
+   </select>
+
+</mapper>
