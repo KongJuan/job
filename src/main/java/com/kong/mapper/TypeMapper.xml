@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kong.mapper.TypeMapper">
+
+    <select id="queryCompanyTypeName" resultType="java.lang.String" parameterType="java.lang.String">
+        select tname from companyType where code=#{code}
+    </select>
+    <select id="queryFunctionTypeName" resultType="java.lang.String" parameterType="java.lang.String">
+        select tname from functionType where code=#{code}
+    </select>
+    <select id="queryWorkCharacterName" resultType="java.lang.String" parameterType="java.lang.String">
+        select tname from workCharacter where code=#{code}
+    </select>
+    <select id="queryWorkTypeName" resultType="java.lang.String" parameterType="java.lang.String">
+        select tname from workType where code=#{code}
+    </select>
+
+
+    <select id="queryCompanyType" resultType="type">
+        select * from companyType
+    </select>
+    <select id="queryFunctionType" resultType="type">
+        select * from functionType
+    </select>
+    <select id="queryWorkCharacter" resultType="type">
+        select * from workCharacter
+    </select>
+    <select id="queryWorkType" resultType="type">
+        select * from workType
+    </select>
+
+</mapper>

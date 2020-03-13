@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kong.mapper.PositionMapper">
+
+    <!--查询个人发布职位列表-->
+    <select id="queryPersonalPosition" parameterType="map" resultType="position">
+        select p_id,p_name,salary,xueli,workProvince,workCity,detailAdr,publicTime,publicId,state from post where publicId=#{publicId}
+        <if test="pname!=null and pname!=''">
+            and p_name like CONCAT('%',#{pname},'%')
+        </if>
+        <if test="xueli!=null and xueli!=''">
+            and xueli = #{xueli}
+        </if>
+    </select>
+
+    <!--查询职位Id-->
+    <select id="queryPositionId" parameterType="int" resultType="int">
+        select p_id from post where publicId=#{publicId}
+    </select>
+   <!-- <select id="queryPersonalPosition" parameterType="map" resultType="position">
+        select p_id,p_name,salary,employeeType,
+        (
+
+        CASE WHEN LENGTH(brief)>40
+
+        THEN CONCAT(SUBSTRING(brief,1,40),'...')
+
+        ELSE brief END
+
+        ) AS brief,publicTime from post where publicId=#{publicId}
+
+            <if test="p_name!=null and p_name!=''">
+               and p_name like CONCAT('%',#{p_name},'%')
+            </if>
+            <if test="publicTime!=null and publicTime!=''">
+               and date_format(publicTime,'%Y-%m-%d')=#{publicTime}
+            </if>
+
+    </select>
+-->
+    <select id="queryPositionInfo" parameterType="map" resultType="position">
+        select * from post where p_id=#{pid}
+    </select>
+
+    <!--添加岗位-->
+    <insert id="addPosition" parameterType="map">
+        insert into post(p_name,xueli,salary,workCity,functionType,num,brief,employeeType,publicTime,publicId,state)
+        values (#{p_name},#{xueli},#{salary},#{workCity},#{functionType},#{num},#{brief},#{employeeType},#{publicTime},#{state},0)
+    </insert>
+
+    <!--修改岗位-->
+    <update id="updatePositionById" parameterType="map">
+        update post
+        set
+        p_name=#{p_name},
+        xueli=#{xueli},
+        salary=#{salary},
+        workCity=#{workCity},
+        functionType=#{functionType},
+        num=#{num},
+        brief=#{brief},
+        employeeType=#{employeeType},
+        publicTime=#{publicTime},
+        publicId=#{publicId}
+        where p_id=#{p_id}
+    </update>
+
+    <!--删除岗位-->
+    <delete id="delPosition" parameterType="map">
+        delete from post where p_id=#{p_id}
+    </delete>
+
+</mapper>

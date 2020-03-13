@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kong.mapper.RecruiterMapper">
+
+
+    <resultMap id="RecruiterPosition" type="recruiter">
+        <id column="cid" property="cid"/>
+        <result column="cname" property="cname"/>
+        <result column="cpwd" property="cpwd"/>
+        <result column="realname" property="realname"/>
+        <result column="pos" property="pos"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="companyName" property="companyName"/>
+        <result column="address" property="address"/>
+        <result column="companyType" property="companyType"/>
+        <result column="cbrief" property="cbrief"/>
+        <result column="trade" property="trade"/>
+        <result column="subsidy" property="subsidy"/>
+        <collection property="positions" ofType="position">
+            <id column="p_id" property="p_id"/>
+            <result column="p_name" property="p_name"/>
+            <result column="xueli" property="xueli"/>
+            <result column="salary" property="salary"/>
+            <result column="workProvince" property="workProvince" jdbcType="VARCHAR"/>
+            <result column="workCity" property="workCity" jdbcType="VARCHAR"/>
+            <result column="detailAdr" property="detailAdr" jdbcType="VARCHAR"/>
+            <result column="functionType" property="functionType"/>
+            <result column="num" property="num"/>
+            <result column="brief" property="brief"/>
+            <result column="employeeType" property="employeeType"/>
+            <result column="publicTime" property="publicTime"/>
+            <result column="publicId" property="publicId"/>
+        </collection>
+    </resultMap>
+
+    <!--查询公司名称-->
+    <select id="queryCompanyName" parameterType="int" resultType="java.lang.String">
+        select companyName from recruiter where cid=#{cid}
+    </select>
+    <!--查询职位详细信息-->
+    <select id="queryPositionDetail" parameterType="map" resultMap="RecruiterPosition">
+        select p.*,r.realname,r.pos,r.companyName,r.trade,subsidy,publicTime
+            from post p LEFT JOIN recruiter r ON p.publicId=r.cid where p_id=#{p_id}
+    </select>
+    <!--多条件查询-->
+    <select id="queryPositionByMore" parameterType="map" resultMap="RecruiterPosition">
+        select p_id,p_name,salary,employeeType,workCity,r.companyName,r.trade,subsidy,publicTime
+        from post p LEFT JOIN recruiter r ON p.publicId=r.cid
+        <where>
+            <if test="content!=null and content!=''">
+                p_name like CONCAT('%',#{content},'%') or companyName like CONCAT('%',#{content},'%') or functionType like CONCAT('%',#{content},'%')
+            </if>
+            <if test="workCity!=null and workCity!=''">
+                AND workCity=#{workCity}
+            </if>
+            <if test="employeeType!=null and employeeType!=''">
+                AND employeeType=#{employeeType}
+            </if>
+            <if test="functionType!=null and functionType!=''">
+                AND functionType=#{functionType}
+            </if>
+            <if test="companyType!=null and companyType!=''">
+                AND companyType=#{companyType}
+            </if>
+            <if test="trade!=null and trade!=''">
+                AND trade=#{trade}
+            </if>
+        </where>
+        <choose>
+            <when test="type==1"> ORDER BY  publicTime desc</when>
+            <when test="type==2"> ORDER BY SUBSTRING_INDEX(salary,'-',1) DESC,SUBSTRING_INDEX(SUBSTRING_INDEX(salary,'-',-1),'k',1) DESC</when>
+        </choose>
+    </select>
+
+    <!--查询发职位的详细信息-->
+    <select id="queryPositionInfo" parameterType="map" resultMap="RecruiterPosition">
+        select p_id,p_name,xueli,salary,employeeType,workCity,r.companyName,r.trade,subsidy,publicTime
+         from post p LEFT JOIN recruiter r ON p.publicId=r.cid
+         <where>
+             <if test="content!=null and content!='' and type==1">
+                 p_name like CONCAT('%',#{content},'%')
+             </if>
+             <if test="content!=null and content!='' and type==2">
+                 companyName like CONCAT('%',#{content},'%')
+             </if>
+         </where>
+        ORDER BY publicTime desc limit 10
+    </select>
+
+    <!--热门搜索显示-->
+    <select id="queryPositionInfoByTrade" parameterType="map" resultMap="RecruiterPosition">
+        select p_id,p_name,xueli,salary,employeeType,workCity,r.companyName,r.trade,subsidy,publicTime
+          from post p LEFT JOIN recruiter r ON p.publicId=r.cid
+          <where>
+              <if test="trade!=null and trade!=''">
+                  trade like CONCAT('%',#{trade},'%')
+              </if>
+          </where>
+        ORDER BY publicTime desc limit 10
+    </select>
+
+    <!--查询某公司发布的职位-->
+    <select id="queryPositionBycompany" resultMap="RecruiterPosition" parameterType="java.lang.String">
+        select p_name,salary,employeeType,
+        (
+
+        CASE WHEN LENGTH(brief)>40
+
+        THEN CONCAT(SUBSTRING(brief,1,40),'...')
+
+        ELSE brief END
+
+        ) AS brief,realname,publicTime from recruiter r
+           LEFT JOIN post p on r.cid=p.publicId where companyName=#{companyName}
+    </select>
+
+    <!--查询用户列表-->
+    <select id="queryRecruiterList" parameterType="map" resultType="Recruiter">
+        select * from recruiter
+        <where>
+            <if test="cname!=null and cname!=''">
+                cname like CONCAT('%',#{cname},'%')
+            </if>
+            <if test="companyName!=null and companyName!=''">
+                AND companyName=#{companyName}
+            </if>
+            <if test="address!=null and address!=''">
+                AND address like CONCAT('%',#{address},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--根据条件查询用户是否存在  登录-->
+    <select id="login" parameterType="map" resultType="recruiter">
+        select * from recruiter where cname=#{cname} and cpwd=#{cpwd}
+    </select>
+
+    <!--根据用户名称查询  注册-->
+    <select id="queryRecruiterByName" parameterType="java.lang.String" resultType="recruiter">
+        select * from recruiter where cname=#{cname}
+    </select>
+    <!--新增用户  注册-->
+    <insert id="addRecruiter" parameterType="map">
+        insert into recruiter(
+        cname,cpwd,realname,pos,email,phone,companyName,address,companyType,cbrief,trade,subsidy,status) values (
+        #{cname},
+        #{cpwd},
+        #{realname},
+        #{pos},
+        #{email},
+        #{phone},
+        #{companyName},
+        #{address},
+         #{companyType},
+        #{cbrief},
+        #{trade},
+        #{subsidy},0)
+    </insert>
+
+    <!--根据用户名称更新用户信息-->
+    <update id="updateRecruiter" parameterType="map">
+        update recruiter
+        set
+        cname = #{cname},
+        cpwd = #{cpwd},
+        realname=#{realname},
+        pos = #{pos},
+        email = #{email},
+        phone = #{phone},
+        companyName=#{companyName},
+        address = #{address},
+        cbrief = #{cbrief},
+        trade = #{trade},
+        subsidy = #{subsidy}
+        where cname = #{cname}
+    </update>
+
+    <!--根据用户id更新用户信息-->
+    <update id="updateRecruiterById" parameterType="map">
+        update recruiter
+        set
+        cname = #{cname},
+        cpwd = #{cpwd},
+        realname=#{realname},
+        pos = #{pos},
+        email = #{email},
+        phone = #{phone},
+        companyName=#{companyName},
+        address = #{address},
+        cbrief = #{cbrief},
+        trade = #{trade},
+        subsidy = #{subsidy}
+        where cid = #{cid}
+    </update>
+
+    <!--修改用户密码-->
+
+    <update id="updateRecruiterPass" parameterType="map">
+        update recruiter set cpwd = #{cpwd} where cname = #{cname}
+    </update>
+
+    <!--根据用户名删除用户信息-->
+
+    <delete id="delRecruiter" parameterType="map">
+        delete from recruiter where  cid = #{cid}
+    </delete>
+
+
+    <!--投递成功时查询的数据-->
+    <select id="querydeliver" resultMap="RecruiterPosition" parameterType="int">
+        select p_name,salary,companyName from post p left join recruiter r on p.publicId = r.cid
+        where p_id=#{p_id}
+    </select>
+</mapper>
